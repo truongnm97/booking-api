@@ -5,6 +5,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import * as pactum from 'pactum';
 import { EditUserDto } from 'user/dto';
 import { CreateBookingDto, EditBookingDto } from 'booking/dto';
+import { AuthDto } from 'auth/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -34,7 +35,7 @@ describe('App e2e', () => {
   });
 
   describe('Auth', () => {
-    const dto = {
+    const dto: AuthDto = {
       email: 'hello@gmail.com',
       password: '123456',
     };
@@ -95,11 +96,11 @@ describe('App e2e', () => {
   });
 
   describe('Bookmark', () => {
-    describe('Get bookmarks', () => {
-      it('should get bookmarks', () => {
+    describe('Get bookings', () => {
+      it('should get bookings', () => {
         return pactum
           .spec()
-          .get('/bookmarks')
+          .get('/bookings')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
@@ -107,30 +108,30 @@ describe('App e2e', () => {
       });
     });
 
-    describe('Create bookmark', () => {
+    describe('Create booking', () => {
       const dto: CreateBookingDto = {
-        title: 'First bookmark',
+        title: 'First booking',
         link: 'https://teddyy.netlify.app',
       };
-      it('should create bookmark', () => {
+      it('should create booking', () => {
         return pactum
           .spec()
-          .post('/bookmarks')
+          .post('/bookings')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
           .withBody(dto)
           .expectStatus(HttpStatus.CREATED)
-          .stores('bookmarkId', 'id');
+          .stores('bookingId', 'id');
       });
     });
 
-    describe('Get bookmark by id', () => {
-      it('should get bookmark by id', () => {
+    describe('Get booking by id', () => {
+      it('should get booking by id', () => {
         return pactum
           .spec()
-          .get('/bookmarks/{id}')
-          .withPathParams('id', '$S{bookmarkId}')
+          .get('/bookings/{id}')
+          .withPathParams('id', '$S{bookingId}')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
@@ -138,16 +139,16 @@ describe('App e2e', () => {
       });
     });
 
-    describe('Edit bookmark by id', () => {
-      it('should edit bookmark by id', () => {
+    describe('Edit booking by id', () => {
+      it('should edit booking by id', () => {
         const dto: EditBookingDto = {
-          title: 'Edited bookmark',
+          title: 'Edited booking',
           description: 'Testing',
         };
         return pactum
           .spec()
-          .patch('/bookmarks/{id}')
-          .withPathParams('id', '$S{bookmarkId}')
+          .patch('/bookings/{id}')
+          .withPathParams('id', '$S{bookingId}')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
@@ -156,22 +157,22 @@ describe('App e2e', () => {
       });
     });
 
-    describe('Delete bookmark by id', () => {
-      it('should delete bookmark by id', () => {
+    describe('Delete booking by id', () => {
+      it('should delete booking by id', () => {
         return pactum
           .spec()
-          .delete('/bookmarks/{id}')
-          .withPathParams('id', '$S{bookmarkId}')
+          .delete('/bookings/{id}')
+          .withPathParams('id', '$S{bookingId}')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
           .expectStatus(HttpStatus.NO_CONTENT);
       });
 
-      it('should get empty bookmarks', () => {
+      it('should get empty bookings', () => {
         return pactum
           .spec()
-          .get('/bookmarks')
+          .get('/bookings')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })

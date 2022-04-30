@@ -6,4 +6,4 @@ import { BookingController } from './booking.controller';
   providers: [BookingService],
   controllers: [BookingController],
 })
-export class BookmarkModule {}
+export class BookingModule {}

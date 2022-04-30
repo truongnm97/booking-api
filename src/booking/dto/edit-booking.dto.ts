@@ -1,5 +1,11 @@
 import { BookingStatus, EventType } from '@prisma/client';
-import { IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class EditBookingDto {
   @IsString()
@@ -12,7 +18,7 @@ export class EditBookingDto {
 
   @IsString()
   @IsOptional()
-  location: string;
+  location?: string;
 
   @IsArray()
   @IsOptional()
@@ -29,4 +35,8 @@ export class EditBookingDto {
   @IsEnum(BookingStatus)
   @IsOptional()
   status?: BookingStatus;
+
+  @IsBoolean()
+  @IsOptional()
+  isCancelled?: boolean;
 }

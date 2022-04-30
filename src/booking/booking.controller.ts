@@ -9,8 +9,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { GetUser } from 'auth/decorator';
@@ -24,27 +22,27 @@ export class BookingController {
   constructor(private bookingService: BookingService) {}
 
   @Get()
-  getBookings(@GetUser('id') userId: number) {
+  getBookings(@GetUser('id') userId: string) {
     return this.bookingService.getBookings(userId);
   }
 
   @Get(':id')
   getBookingById(
-    @GetUser('id') userId: number,
-    @Param('id', ParseIntPipe) bookingId: number,
+    @GetUser('id') userId: string,
+    @Param('id', ParseIntPipe) bookingId: string,
   ) {
     return this.bookingService.getBookingById(userId, bookingId);
   }
 
   @Post()
-  createBooking(@GetUser('id') userId: number, @Body() dto: CreateBookingDto) {
+  createBooking(@GetUser('id') userId: string, @Body() dto: CreateBookingDto) {
     return this.bookingService.createBooking(userId, dto);
   }
 
   @Patch(':id')
   editBookingById(
-    @GetUser('id') userId: number,
-    @Param('id', ParseIntPipe) bookingId: number,
+    @GetUser('id') userId: string,
+    @Param('id', ParseIntPipe) bookingId: string,
     @Body() dto: EditBookingDto,
   ) {
     return this.bookingService.editBookingById(userId, bookingId, dto);
@@ -53,15 +51,19 @@ export class BookingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   deleteBookingById(
-    @GetUser('id') userId: number,
-    @Param('id', ParseIntPipe) bookingId: number,
+    @GetUser('id') userId: string,
+    @Param('id', ParseIntPipe) bookingId: string,
   ) {
     return this.bookingService.deleteBookingById(userId, bookingId);
   }
 
-  @Post('cancel')
-  cancelOrder(@Req() user, @Query('id') id: string) {
-    console.log({ user });
-    return this.bookingService.cancelOrder(id);
+  @Post(':id/cancel')
+  cancelOrder(
+    @GetUser('id') userId: string,
+    @Param('id', ParseIntPipe) bookingId: string,
+  ) {
+    return this.bookingService.editBookingById(userId, bookingId, {
+      isCancelled: true,
+    });
   }
 }

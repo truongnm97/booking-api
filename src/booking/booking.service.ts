@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateBookingDto, EditBookingDto } from './dto';
 
@@ -10,7 +6,7 @@ import { CreateBookingDto, EditBookingDto } from './dto';
 export class BookingService {
   constructor(private prisma: PrismaService) {}
 
-  getBookings(userId: number) {
+  getBookings(userId: string) {
     return this.prisma.booking.findMany({
       where: {
         userId,
@@ -18,7 +14,7 @@ export class BookingService {
     });
   }
 
-  getBookingById(userId: number, bookingId: number) {
+  getBookingById(userId: string, bookingId: string) {
     return this.prisma.booking.findFirst({
       where: {
         id: bookingId,
@@ -27,7 +23,7 @@ export class BookingService {
     });
   }
 
-  createBooking(userId: number, dto: CreateBookingDto) {
+  createBooking(userId: string, dto: CreateBookingDto) {
     return this.prisma.booking.create({
       data: {
         ...dto,
@@ -41,8 +37,8 @@ export class BookingService {
   }
 
   async editBookingById(
-    userId: number,
-    bookingId: number,
+    userId: string,
+    bookingId: string,
     dto: EditBookingDto,
   ) {
     const booking = await this.prisma.booking.findUnique({
@@ -65,7 +61,7 @@ export class BookingService {
     });
   }
 
-  async deleteBookingById(userId: number, bookingId: number) {
+  async deleteBookingById(userId: string, bookingId: string) {
     const booking = await this.prisma.booking.findUnique({
       where: {
         id: bookingId,
@@ -81,28 +77,5 @@ export class BookingService {
         id: bookingId,
       },
     });
-  }
-
-  async cancelOrder(orderId: string) {
-    if (!orderId) {
-      throw new BadRequestException('Id is required');
-    }
-    const order = await this.prisma.booking.findUnique({
-      where: { id: Number(orderId) },
-    });
-    console.log({ order });
-    if (!order) {
-      throw new BadRequestException('Order is not existed');
-    }
-    if (order.isCancelled) {
-      throw new BadRequestException('Order is not active');
-    }
-    const res = await this.prisma.booking.update({
-      where: { id: Number(orderId) },
-      data: {
-        isCancelled: true,
-      },
-    });
-    return res;
   }
 }

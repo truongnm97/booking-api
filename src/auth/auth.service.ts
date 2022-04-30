@@ -39,6 +39,7 @@ export class AuthService {
   }
 
   async signIn({ email, password }: AuthDto) {
+    console.log({ email, password });
     const user = await this.prisma.user.findUnique({
       where: {
         email,
@@ -54,7 +55,7 @@ export class AuthService {
     return this.signToken(user.id, user.email);
   }
 
-  async signToken(userId: number, email: string) {
+  async signToken(userId: string, email: string) {
     const payload = {
       sub: userId,
       email,

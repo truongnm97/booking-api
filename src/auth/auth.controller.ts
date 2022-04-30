@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 
@@ -15,5 +22,11 @@ export class AuthController {
   @Post('signIn')
   signIn(@Body() dto: AuthDto) {
     return this.authService.signIn(dto);
+  }
+
+  @Post('signOut')
+  async logout(@Res({ passthrough: true }) res) {
+    res.cookie('token', '', { expires: new Date() });
+    return { message: 'Logged out' };
   }
 }
