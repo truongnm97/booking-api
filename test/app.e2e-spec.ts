@@ -95,90 +95,90 @@ describe('App e2e', () => {
     });
   });
 
-  describe('Bookmark', () => {
-    describe('Get bookings', () => {
-      it('should get bookings', () => {
-        return pactum
-          .spec()
-          .get('/bookings')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(HttpStatus.OK);
-      });
-    });
+  // describe('Booking', () => {
+  //   describe('Get bookings', () => {
+  //     it('should get bookings', () => {
+  //       return pactum
+  //         .spec()
+  //         .get('/bookings')
+  //         .withHeaders({
+  //           Authorization: 'Bearer $S{userAt}',
+  //         })
+  //         .expectStatus(HttpStatus.OK);
+  //     });
+  //   });
 
-    describe('Create booking', () => {
-      const dto: CreateBookingDto = {
-        title: 'First booking',
-        link: 'https://teddyy.netlify.app',
-      };
-      it('should create booking', () => {
-        return pactum
-          .spec()
-          .post('/bookings')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .withBody(dto)
-          .expectStatus(HttpStatus.CREATED)
-          .stores('bookingId', 'id');
-      });
-    });
+  //   describe('Create booking', () => {
+  //     const dto: CreateBookingDto = {
+  //       title: 'First booking',
+  //       link: 'https://teddyy.netlify.app',
+  //     };
+  //     it('should create booking', () => {
+  //       return pactum
+  //         .spec()
+  //         .post('/bookings')
+  //         .withHeaders({
+  //           Authorization: 'Bearer $S{userAt}',
+  //         })
+  //         .withBody(dto)
+  //         .expectStatus(HttpStatus.CREATED)
+  //         .stores('bookingId', 'id');
+  //     });
+  //   });
 
-    describe('Get booking by id', () => {
-      it('should get booking by id', () => {
-        return pactum
-          .spec()
-          .get('/bookings/{id}')
-          .withPathParams('id', '$S{bookingId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(HttpStatus.OK);
-      });
-    });
+  //   describe('Get booking by id', () => {
+  //     it('should get booking by id', () => {
+  //       return pactum
+  //         .spec()
+  //         .get('/bookings/{id}')
+  //         .withPathParams('id', '$S{bookingId}')
+  //         .withHeaders({
+  //           Authorization: 'Bearer $S{userAt}',
+  //         })
+  //         .expectStatus(HttpStatus.OK);
+  //     });
+  //   });
 
-    describe('Edit booking by id', () => {
-      it('should edit booking by id', () => {
-        const dto: EditBookingDto = {
-          title: 'Edited booking',
-          description: 'Testing',
-        };
-        return pactum
-          .spec()
-          .patch('/bookings/{id}')
-          .withPathParams('id', '$S{bookingId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .withBody(dto)
-          .expectStatus(HttpStatus.OK);
-      });
-    });
+  //   describe('Edit booking by id', () => {
+  //     it('should edit booking by id', () => {
+  //       const dto: EditBookingDto = {
+  //         title: 'Edited booking',
+  //         description: 'Testing',
+  //       };
+  //       return pactum
+  //         .spec()
+  //         .patch('/bookings/{id}')
+  //         .withPathParams('id', '$S{bookingId}')
+  //         .withHeaders({
+  //           Authorization: 'Bearer $S{userAt}',
+  //         })
+  //         .withBody(dto)
+  //         .expectStatus(HttpStatus.OK);
+  //     });
+  //   });
 
-    describe('Delete booking by id', () => {
-      it('should delete booking by id', () => {
-        return pactum
-          .spec()
-          .delete('/bookings/{id}')
-          .withPathParams('id', '$S{bookingId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(HttpStatus.NO_CONTENT);
-      });
+  //   describe('Delete booking by id', () => {
+  //     it('should delete booking by id', () => {
+  //       return pactum
+  //         .spec()
+  //         .delete('/bookings/{id}')
+  //         .withPathParams('id', '$S{bookingId}')
+  //         .withHeaders({
+  //           Authorization: 'Bearer $S{userAt}',
+  //         })
+  //         .expectStatus(HttpStatus.NO_CONTENT);
+  //     });
 
-      it('should get empty bookings', () => {
-        return pactum
-          .spec()
-          .get('/bookings')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(HttpStatus.OK)
-          .expectJsonLength(0);
-      });
-    });
-  });
+  //     it('should get empty bookings', () => {
+  //       return pactum
+  //         .spec()
+  //         .get('/bookings')
+  //         .withHeaders({
+  //           Authorization: 'Bearer $S{userAt}',
+  //         })
+  //         .expectStatus(HttpStatus.OK)
+  //         .expectJsonLength(0);
+  //     });
+  //   });
+  // });
 });
