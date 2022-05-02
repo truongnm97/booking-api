@@ -1,4 +1,4 @@
-import { BookingStatus, EventType } from '@prisma/client';
+import { BookingStatus } from '@prisma/client';
 import {
   IsArray,
   IsBoolean,
@@ -20,9 +20,9 @@ export class EditBookingDto {
   @IsOptional()
   selectedDate?: string;
 
-  @IsEnum(EventType)
+  @IsString()
   @IsOptional()
-  eventType?: EventType;
+  eventTypeId?: string;
 
   @IsEnum(BookingStatus)
   @IsOptional()

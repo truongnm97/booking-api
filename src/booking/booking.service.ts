@@ -81,10 +81,15 @@ export class BookingService {
     });
   }
 
-  createBooking(user: User, dto: CreateBookingDto) {
+  createBooking(user: User, { eventTypeId, ...dto }: CreateBookingDto) {
     return this.prisma.booking.create({
       data: {
         ...dto,
+        eventType: {
+          connect: {
+            id: eventTypeId,
+          },
+        },
         user: {
           connect: {
             id: user.id,
@@ -94,13 +99,22 @@ export class BookingService {
     });
   }
 
-  async editBookingById(user: User, bookingId: string, dto: EditBookingDto) {
+  async editBookingById(
+    user: User,
+    bookingId: string,
+    { eventTypeId, ...dto }: EditBookingDto,
+  ) {
     return this.prisma.booking.update({
       where: {
         id: bookingId,
       },
       data: {
         ...dto,
+        eventType: {
+          connect: {
+            id: eventTypeId,
+          },
+        },
       },
     });
   }

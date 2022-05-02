@@ -1,5 +1,4 @@
-import { EventType } from '@prisma/client';
-import { IsArray, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateBookingDto {
   @IsString()
@@ -10,7 +9,7 @@ export class CreateBookingDto {
   @IsNotEmpty()
   proposalDates: string[];
 
-  @IsEnum(EventType)
+  @IsString()
   @IsNotEmpty()
-  eventType: EventType;
+  eventTypeId: string;
 }

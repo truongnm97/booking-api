@@ -30,7 +30,6 @@ model Booking {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   location      String
   status        BookingStatus @default(PENDING_REVIEW)
-  eventType     EventType
   proposalDates String[]
   selectedDate  String?
   isCancelled   Boolean       @default(false)
@@ -41,7 +40,20 @@ model Booking {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
+  eventTypeId String
+  eventType   EventType @relation(fields: [eventTypeId], references: [id])
+
   @@map("bookings")
+}
+
+model EventType {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+  @@map("eventType")
 }
 
 enum Role {
@@ -53,10 +65,4 @@ enum BookingStatus {
   PENDING_REVIEW
   APPROVED
   REJECTED
-}
-
-enum EventType {
-  HEALTH_TALK
-  WELLNESS_EVENT
-  FITNESS_ACTIVITIES
 }
