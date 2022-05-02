@@ -40,7 +40,7 @@ export class AuthService {
     }
   }
 
-  async signIn({ email, password }: AuthDto) {
+  async signIn(res: any, { email, password }: AuthDto) {
     const user = await this.prisma.user.findUnique({
       where: {
         email,
@@ -53,7 +53,16 @@ export class AuthService {
 
     if (!pwMatches) throw new ForbiddenException('Credentials incorrect');
 
-    return this.signToken(user.id, user.email);
+    const token = await this.signToken(user.id, user.email);
+
+    res.setHeader(
+      'Set-Cookie',
+      `token=${token.access_token}; HttpOnly; Path=/; Max-Age=${this.config.get(
+        'TOKEN_EXPIRY_TIME',
+      )}`,
+    );
+
+    return token;
   }
 
   async signToken(userId: string, email: string) {
@@ -63,12 +72,18 @@ export class AuthService {
     };
 
     const token = await this.jwt.signAsync(payload, {
-      expiresIn: '1d',
+      expiresIn: this.config.get('TOKEN_EXPIRY_TIME') || '1d',
       secret: this.config.get('JWT_SECRET'),
     });
 
     return {
       access_token: token,
     };
+  }
+
+  async signOut(res: any) {
+    res.setHeader('Set-Cookie', `token=; HttpOnly; Path=/; Max-Age=0`);
+
+    return { message: 'Logged out' };
   }
 }

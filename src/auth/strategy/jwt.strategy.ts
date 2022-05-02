@@ -9,7 +9,10 @@ import { Request as RequestType } from 'express';
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(config: ConfigService, private prisma: PrismaService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        JwtStrategy.extractJWT,
+        // ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       secretOrKey: config.get('JWT_SECRET'),
     });
   }
@@ -27,6 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   private static extractJWT(req: RequestType): string | null {
+    console.log('req', req.signedCookies);
     if (req.cookies && 'token' in req.cookies && req.cookies.token.length > 0) {
       return req.cookies.token;
     }

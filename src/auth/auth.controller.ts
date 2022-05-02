@@ -20,13 +20,12 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('signIn')
-  signIn(@Body() dto: AuthDto) {
-    return this.authService.signIn(dto);
+  signIn(@Res({ passthrough: true }) res, @Body() dto: AuthDto) {
+    return this.authService.signIn(res, dto);
   }
 
   @Post('signOut')
   async logout(@Res({ passthrough: true }) res) {
-    res.cookie('token', '', { expires: new Date() });
-    return { message: 'Logged out' };
+    return this.authService.signOut(res);
   }
 }
