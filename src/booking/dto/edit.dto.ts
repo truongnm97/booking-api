@@ -10,14 +10,6 @@ import {
 export class EditBookingDto {
   @IsString()
   @IsOptional()
-  name?: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
-
-  @IsString()
-  @IsOptional()
   location?: string;
 
   @IsArray()
@@ -39,4 +31,8 @@ export class EditBookingDto {
   @IsBoolean()
   @IsOptional()
   isCancelled?: boolean;
+
+  @IsString()
+  @IsOptional()
+  rejectReason?: string;
 }

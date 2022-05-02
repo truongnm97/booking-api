@@ -1,56 +1,100 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { BookingStatus, Role, User } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
-import { CreateBookingDto, EditBookingDto } from './dto';
+import {
+  ApproveBookingDto,
+  CancelBookingDto,
+  CreateBookingDto,
+  EditBookingDto,
+  RejectBookingDto,
+} from './dto';
+import { BookingsResponse } from './interface/bookings.interface';
 
 @Injectable()
 export class BookingService {
   constructor(private prisma: PrismaService) {}
 
-  getBookings(userId: string) {
-    return this.prisma.booking.findMany({
-      where: {
-        userId,
+  async getBookings(
+    user: User,
+    page: number,
+    pageSize: number,
+  ): Promise<BookingsResponse> {
+    const bookings = await this.prisma.booking.findMany({
+      where:
+        user.role === Role.ADMIN
+          ? {
+              isCancelled: false,
+            }
+          : {
+              userId: user.id,
+              isCancelled: false,
+            },
+      select: {
+        id: true,
+        user: user.role === Role.ADMIN,
+        status: true,
+        eventType: true,
+        location: true,
+        proposalDates: true,
+        selectedDate: true,
+        userId: true,
+        isCancelled: true,
+        rejectReason: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
+
+    const total = await this.prisma.booking.count({
+      where:
+        user.role === Role.ADMIN
+          ? {
+              isCancelled: false,
+            }
+          : {
+              userId: user.id,
+              isCancelled: false,
+            },
+    });
+
+    return {
+      data: bookings,
+      page,
+      pageSize,
+      total,
+    };
   }
 
-  getBookingById(userId: string, bookingId: string) {
+  getBookingById(user: User, bookingId: string) {
     return this.prisma.booking.findFirst({
       where: {
         id: bookingId,
-        userId,
+        userId: user.id,
       },
     });
   }
 
-  createBooking(userId: string, dto: CreateBookingDto) {
+  createBooking(user: User, dto: CreateBookingDto) {
     return this.prisma.booking.create({
       data: {
         ...dto,
         user: {
           connect: {
-            id: userId,
+            id: user.id,
           },
         },
       },
     });
   }
 
-  async editBookingById(
-    userId: string,
-    bookingId: string,
-    dto: EditBookingDto,
-  ) {
-    const booking = await this.prisma.booking.findUnique({
-      where: {
-        id: bookingId,
-      },
-    });
-
-    if (!booking || booking.userId !== userId) {
-      throw new ForbiddenException('Access to resource denied');
-    }
-
+  async editBookingById(user: User, bookingId: string, dto: EditBookingDto) {
     return this.prisma.booking.update({
       where: {
         id: bookingId,
@@ -61,20 +105,91 @@ export class BookingService {
     });
   }
 
-  async deleteBookingById(userId: string, bookingId: string) {
-    const booking = await this.prisma.booking.findUnique({
+  async deleteBookingById(user: User, bookingId: string) {
+    return this.prisma.booking.delete({
       where: {
         id: bookingId,
       },
     });
+  }
 
-    if (!booking || booking.userId !== userId) {
+  async approveBooking(user: User, dto: ApproveBookingDto) {
+    const booking = await this.prisma.booking.findUnique({
+      where: {
+        id: dto.id,
+      },
+    });
+
+    if (booking.isCancelled) {
+      throw new BadRequestException('Booking is already cancelled');
+    }
+
+    if (booking.status !== BookingStatus.PENDING_REVIEW) {
+      throw new BadRequestException("Booking isn't pending review");
+    }
+
+    return this.prisma.booking.update({
+      where: {
+        id: dto.id,
+      },
+      data: {
+        selectedDate: dto.selectedDate,
+        status: BookingStatus.APPROVED,
+      },
+    });
+  }
+
+  async rejectBooking(user: User, dto: RejectBookingDto) {
+    const booking = await this.prisma.booking.findUnique({
+      where: {
+        id: dto.id,
+      },
+    });
+
+    if (booking.isCancelled) {
+      throw new BadRequestException('Booking is already cancelled');
+    }
+
+    if (booking.status !== BookingStatus.PENDING_REVIEW) {
+      throw new BadRequestException("Booking isn't pending review");
+    }
+
+    return this.prisma.booking.update({
+      where: {
+        id: dto.id,
+      },
+      data: {
+        rejectReason: dto.rejectReason,
+        status: BookingStatus.REJECTED,
+      },
+    });
+  }
+
+  async cancelBooking(user: User, dto: CancelBookingDto) {
+    const booking = await this.prisma.booking.findUnique({
+      where: {
+        id: dto.id,
+      },
+    });
+
+    if (user.role === Role.USER && (!booking || booking.userId !== user.id)) {
       throw new ForbiddenException('Access to resource denied');
     }
 
-    return this.prisma.booking.delete({
+    if (booking.isCancelled) {
+      throw new BadRequestException('Booking is already cancelled');
+    }
+
+    if (booking.status !== BookingStatus.PENDING_REVIEW) {
+      throw new BadRequestException("Booking isn't pending review");
+    }
+
+    return this.prisma.booking.update({
       where: {
-        id: bookingId,
+        id: dto.id,
+      },
+      data: {
+        isCancelled: true,
       },
     });
   }

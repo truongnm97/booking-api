@@ -2,20 +2,21 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["mongoDb"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   hash      String
   firstName String?
-  lasttName String?
+  lastName  String?
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -26,15 +27,14 @@ model User {
 }
 
 model Booking {
-  id            String        @id @default(uuid())
-  name          String
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
   location      String
-  description   String?
   status        BookingStatus @default(PENDING_REVIEW)
-  eventType     EventType?
+  eventType     EventType
   proposalDates String[]
   selectedDate  String?
   isCancelled   Boolean       @default(false)
+  rejectReason  String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 

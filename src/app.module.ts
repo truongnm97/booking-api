@@ -4,6 +4,7 @@ import { UserModule } from './user/user.module';
 import { BookingModule } from './booking/booking.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
+import { EventTypeModule } from './event-type/event-type.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     BookingModule,
     PrismaModule,
+    EventTypeModule,
   ],
 })
 export class AppModule {}

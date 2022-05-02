@@ -11,59 +11,80 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { Role, User } from '@prisma/client';
 import { GetUser } from 'auth/decorator';
-import { JwtGuard } from 'auth/guard';
+import { JwtGuard, Roles, RolesGuard } from 'auth/guard';
 import { BookingService } from './booking.service';
-import { CreateBookingDto, EditBookingDto } from './dto';
+import {
+  ApproveBookingDto,
+  CancelBookingDto,
+  CreateBookingDto,
+  EditBookingDto,
+  RejectBookingDto,
+} from './dto';
 
+@UseGuards(RolesGuard)
 @UseGuards(JwtGuard)
 @Controller('bookings')
 export class BookingController {
   constructor(private bookingService: BookingService) {}
 
-  @Get()
-  getBookings(@GetUser('id') userId: string) {
-    return this.bookingService.getBookings(userId);
+  @Get(':page?/:pageSize?')
+  getBookings(
+    @GetUser() user: User,
+    @Param('page', ParseIntPipe) page = 1,
+    @Param('pageSize', ParseIntPipe) pageSize = 10,
+  ) {
+    return this.bookingService.getBookings(user, page, pageSize);
   }
 
   @Get(':id')
   getBookingById(
-    @GetUser('id') userId: string,
+    @GetUser() user: User,
     @Param('id', ParseIntPipe) bookingId: string,
   ) {
-    return this.bookingService.getBookingById(userId, bookingId);
+    return this.bookingService.getBookingById(user, bookingId);
   }
 
   @Post()
-  createBooking(@GetUser('id') userId: string, @Body() dto: CreateBookingDto) {
-    return this.bookingService.createBooking(userId, dto);
+  createBooking(@GetUser() user: User, @Body() dto: CreateBookingDto) {
+    return this.bookingService.createBooking(user, dto);
   }
 
   @Patch(':id')
+  @Roles(Role.ADMIN)
   editBookingById(
-    @GetUser('id') userId: string,
+    @GetUser() user: User,
     @Param('id', ParseIntPipe) bookingId: string,
     @Body() dto: EditBookingDto,
   ) {
-    return this.bookingService.editBookingById(userId, bookingId, dto);
+    return this.bookingService.editBookingById(user, bookingId, dto);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Roles(Role.ADMIN)
   deleteBookingById(
-    @GetUser('id') userId: string,
+    @GetUser() user: User,
     @Param('id', ParseIntPipe) bookingId: string,
   ) {
-    return this.bookingService.deleteBookingById(userId, bookingId);
+    return this.bookingService.deleteBookingById(user, bookingId);
   }
 
-  @Post(':id/cancel')
-  cancelOrder(
-    @GetUser('id') userId: string,
-    @Param('id', ParseIntPipe) bookingId: string,
-  ) {
-    return this.bookingService.editBookingById(userId, bookingId, {
-      isCancelled: true,
-    });
+  @Post('approve')
+  @Roles(Role.ADMIN)
+  approveBooking(@GetUser() user: User, @Body() dto: ApproveBookingDto) {
+    return this.bookingService.approveBooking(user, dto);
+  }
+
+  @Post('reject')
+  @Roles(Role.ADMIN)
+  rejectBooking(@GetUser() user: User, @Body() dto: RejectBookingDto) {
+    return this.bookingService.rejectBooking(user, dto);
+  }
+
+  @Post('cancel')
+  cancelBooking(@GetUser() user: User, @Body() dto: CancelBookingDto) {
+    return this.bookingService.cancelBooking(user, dto);
   }
 }

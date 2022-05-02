@@ -14,7 +14,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signUp({ email, password, role }: AuthDto) {
+  async signUp({ email, password, role, firstName, lastName }: AuthDto) {
     const hash = await argon.hash(password);
 
     try {
@@ -23,6 +23,8 @@ export class AuthService {
           email,
           hash,
           role,
+          firstName,
+          lastName,
         },
       });
       delete user.hash;
@@ -39,7 +41,6 @@ export class AuthService {
   }
 
   async signIn({ email, password }: AuthDto) {
-    console.log({ email, password });
     const user = await this.prisma.user.findUnique({
       where: {
         email,
