@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class AuthDto {
+export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -17,14 +17,14 @@ export class AuthDto {
   password: string;
 
   @IsEnum(Role)
-  @IsOptional()
+  @IsNotEmpty()
   role?: Role;
+
+  @IsString()
+  @IsNotEmpty()
+  lastName?: string;
 
   @IsString()
   @IsOptional()
   firstName?: string;
-
-  @IsString()
-  @IsOptional()
-  lastName?: string;
 }

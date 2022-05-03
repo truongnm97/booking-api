@@ -6,21 +6,22 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+import { CreateUserDto } from 'user/dto';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
+import { SignInDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signUp')
-  signUp(@Body() dto: AuthDto) {
+  signUp(@Body() dto: CreateUserDto) {
     return this.authService.signUp(dto);
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('signIn')
-  signIn(@Body() dto: AuthDto) {
+  signIn(@Body() dto: SignInDto) {
     return this.authService.signIn(dto);
   }
 

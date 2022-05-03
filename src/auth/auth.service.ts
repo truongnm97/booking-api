@@ -1,10 +1,11 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { AuthDto } from './dto';
 import * as argon from 'argon2';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { UserService } from 'user/user.service';
+import { SignInDto } from './dto';
+import { CreateUserDto } from 'user/dto';
 
 @Injectable()
 export class AuthService {
@@ -12,35 +13,14 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private user: UserService,
   ) {}
 
-  async signUp({ email, password, role, firstName, lastName }: AuthDto) {
-    const hash = await argon.hash(password);
-
-    try {
-      const user = await this.prisma.user.create({
-        data: {
-          email,
-          hash,
-          role,
-          firstName,
-          lastName,
-        },
-      });
-      delete user.hash;
-      return user;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Credential taken');
-        }
-      }
-
-      throw error;
-    }
+  async signUp(dto: CreateUserDto) {
+    return this.user.createUser(dto);
   }
 
-  async signIn({ email, password }: AuthDto) {
+  async signIn({ email, password }: SignInDto) {
     const user = await this.prisma.user.findUnique({
       where: {
         email,
