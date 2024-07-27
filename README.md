@@ -12,37 +12,37 @@
 ## Installation
 
 ```bash
-$ yarn
+$ pnpm
 ```
 
 ## Running the app
 
 ```bash
 # Apply Prisma's schema
-$ yarn prisma:generate
+$ pnpm prisma:generate
 
 # development
-$ yarn start
+$ pnpm start
 
 # Run docker for local development
-$ yarn db:dev:restart
+$ pnpm db:dev:restart
 
 # watch mode
-$ yarn start:dev
+$ pnpm start:dev
 
 # production mode
-$ yarn start:prod
+$ pnpm start:prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ yarn test
+$ pnpm test
 
 # e2e tests
-$ yarn test:e2e
+$ pnpm test:e2e
 
 # test coverage
-$ yarn test:cov
+$ pnpm test:cov
 ```

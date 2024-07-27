@@ -5,7 +5,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import * as pactum from 'pactum';
 import { EditUserDto } from 'user/dto';
 import { CreateBookingDto, EditBookingDto } from 'booking/dto';
-import { AuthDto } from 'auth/dto';
+import { SignUpDto } from 'auth/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -35,7 +35,7 @@ describe('App e2e', () => {
   });
 
   describe('Auth', () => {
-    const dto: AuthDto = {
+    const dto: SignUpDto = {
       email: 'hello@gmail.com',
       password: '123456',
     };

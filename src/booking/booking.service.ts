@@ -7,12 +7,11 @@ import { BookingStatus, Role, User } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import {
   ApproveBookingDto,
-  CancelBookingDto,
   CreateBookingDto,
   EditBookingDto,
   RejectBookingDto,
 } from './dto';
-import { BookingsResponse } from './interface/bookings.interface';
+import { BookingEntity, BookingPaginationEntity } from './entity/booking.entity';
 
 @Injectable()
 export class BookingService {
@@ -22,7 +21,7 @@ export class BookingService {
     user: User,
     page: number,
     pageSize: number,
-  ): Promise<BookingsResponse> {
+  ): Promise<BookingPaginationEntity> {
     const bookings = await this.prisma.booking.findMany({
       where:
         user.role === Role.ADMIN
@@ -72,7 +71,7 @@ export class BookingService {
     };
   }
 
-  getBookingById(user: User, bookingId: string) {
+  getBookingById(user: User, bookingId: string): Promise<BookingEntity> {
     return this.prisma.booking.findFirst({
       where: {
         id: bookingId,
@@ -81,7 +80,10 @@ export class BookingService {
     });
   }
 
-  createBooking(user: User, { eventTypeId, ...dto }: CreateBookingDto) {
+  createBooking(
+    user: User,
+    { eventTypeId, ...dto }: CreateBookingDto,
+  ): Promise<BookingEntity> {
     return this.prisma.booking.create({
       data: {
         ...dto,
@@ -103,7 +105,7 @@ export class BookingService {
     user: User,
     bookingId: string,
     { eventTypeId, ...dto }: EditBookingDto,
-  ) {
+  ): Promise<BookingEntity> {
     return this.prisma.booking.update({
       where: {
         id: bookingId,
@@ -119,7 +121,10 @@ export class BookingService {
     });
   }
 
-  async deleteBookingById(user: User, bookingId: string) {
+  async deleteBookingById(
+    user: User,
+    bookingId: string,
+  ): Promise<BookingEntity> {
     return this.prisma.booking.delete({
       where: {
         id: bookingId,
@@ -127,10 +132,14 @@ export class BookingService {
     });
   }
 
-  async approveBooking(user: User, dto: ApproveBookingDto) {
+  async approveBooking(
+    user: User,
+    bookingId: string,
+    dto: ApproveBookingDto,
+  ): Promise<BookingEntity> {
     const booking = await this.prisma.booking.findUnique({
       where: {
-        id: dto.id,
+        id: bookingId,
       },
     });
 
@@ -144,7 +153,7 @@ export class BookingService {
 
     return this.prisma.booking.update({
       where: {
-        id: dto.id,
+        id: bookingId,
       },
       data: {
         selectedDate: dto.selectedDate,
@@ -153,10 +162,14 @@ export class BookingService {
     });
   }
 
-  async rejectBooking(user: User, dto: RejectBookingDto) {
+  async rejectBooking(
+    user: User,
+    bookingId: string,
+    dto: RejectBookingDto,
+  ): Promise<BookingEntity> {
     const booking = await this.prisma.booking.findUnique({
       where: {
-        id: dto.id,
+        id: bookingId,
       },
     });
 
@@ -170,7 +183,7 @@ export class BookingService {
 
     return this.prisma.booking.update({
       where: {
-        id: dto.id,
+        id: bookingId,
       },
       data: {
         rejectReason: dto.rejectReason,
@@ -179,10 +192,10 @@ export class BookingService {
     });
   }
 
-  async cancelBooking(user: User, dto: CancelBookingDto) {
+  async cancelBooking(user: User, bookingId: string): Promise<BookingEntity> {
     const booking = await this.prisma.booking.findUnique({
       where: {
-        id: dto.id,
+        id: bookingId,
       },
     });
 
@@ -200,7 +213,7 @@ export class BookingService {
 
     return this.prisma.booking.update({
       where: {
-        id: dto.id,
+        id: bookingId,
       },
       data: {
         isCancelled: true,
