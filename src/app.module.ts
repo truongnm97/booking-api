@@ -5,12 +5,14 @@ import { BookingModule } from './booking/booking.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { EventTypeModule } from './event-type/event-type.module';
+import { RedisCacheModule } from 'redis-cache/redis-cache.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    RedisCacheModule,
     AuthModule,
     UserModule,
     BookingModule,

@@ -3,9 +3,8 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from 'app.module';
 import { PrismaService } from 'prisma/prisma.service';
 import * as pactum from 'pactum';
-import { EditUserDto } from 'user/dto';
+import { CreateUserDto, EditUserDto } from 'user/dto';
 import { CreateBookingDto, EditBookingDto } from 'booking/dto';
-import { SignUpDto } from 'auth/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -35,9 +34,11 @@ describe('App e2e', () => {
   });
 
   describe('Auth', () => {
-    const dto: SignUpDto = {
+    const dto: CreateUserDto = {
       email: 'hello@gmail.com',
       password: '123456',
+      lastName: 'Nguyen',
+      firstName: 'Truong',
     };
 
     describe('Sign Up', () => {

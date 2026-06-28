@@ -1,25 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from 'prisma/prisma.service';
-import { Request } from 'express';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(
     config: ConfigService,
     private prisma: PrismaService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        JwtStrategy.extractJWT,
+        JwtRefreshStrategy.extractRefreshToken,
+        ExtractJwt.fromAuthHeaderAsBearerToken()
       ]),
-      secretOrKey: config.get('JWT_SECRET'),
+      secretOrKey: config.get('JWT_REFRESH_SECRET'),
     });
   }
 
-  async validate(payload: { sub: string; email: string }) {
+  async validate(payload: { sub: string; jti: string }) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: payload.sub,
@@ -31,14 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     return user;
   }
 
-  private static extractJWT(req: Request): string | null {
-    if (
-      req.signedCookies &&
-      'accessToken' in req.signedCookies &&
-      req.signedCookies.accessToken.length > 0
-    ) {
-      return req.signedCookies.accessToken;
-    }
+  private static extractRefreshToken(req: Request): string | null {
     return null;
   }
 }
