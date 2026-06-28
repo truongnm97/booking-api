@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
@@ -21,7 +22,7 @@ import {
   EditBookingDto,
   RejectBookingDto,
 } from './dto';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   BookingEntity,
   BookingPaginationEntity,
@@ -35,14 +36,14 @@ import {
 export class BookingController {
   constructor(private bookingService: BookingService) {}
 
-  @Get(':page?/:pageSize?')
-  @ApiParam({ type: String, name: 'page', required: false, example: 1 })
-  @ApiParam({ type: String, name: 'pageSize', required: false, example: 10 })
+  @Get()
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
   @ApiResponse({ status: HttpStatus.OK, type: BookingPaginationEntity })
   getBookings(
     @GetUser() user: User,
-    @Param('page', ParseIntPipe) page = 1,
-    @Param('pageSize', ParseIntPipe) pageSize = 10,
+    @Query('page', new ParseIntPipe({ optional: true })) page = 1,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize = 10,
   ) {
     return this.bookingService.getBookings(user, page, pageSize);
   }

@@ -2,23 +2,55 @@ version: '3.8'
 services:
   dev-db:
     image: mongo
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'mongodevkey' > /data/keyfile
+        chmod 400 /data/keyfile
+        chown mongodb:mongodb /data/keyfile
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /data/keyfile
     environment:
       - MONGO_INITDB_DATABASE=booking
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     ports:
       - 27017:27017
+    healthcheck:
+      test: |
+        echo "try { rs.status() } catch(err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" |
+        mongosh --username root --password example --authenticationDatabase admin --quiet
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+      retries: 15
     networks:
       - nestjs-net
 
   test-db:
     image: mongo
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'mongotestkey' > /data/keyfile
+        chmod 400 /data/keyfile
+        chown mongodb:mongodb /data/keyfile
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /data/keyfile
     environment:
       - MONGO_INITDB_DATABASE=test
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     ports:
       - 27018:27017
+    healthcheck:
+      test: |
+        echo "try { rs.status() } catch(err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" |
+        mongosh --username root --password example --authenticationDatabase admin --quiet
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+      retries: 15
     networks:
       - nestjs-net
 networks:

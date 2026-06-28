@@ -112,11 +112,9 @@ export class BookingService {
       },
       data: {
         ...dto,
-        eventType: {
-          connect: {
-            id: eventTypeId,
-          },
-        },
+        ...(eventTypeId && {
+          eventType: { connect: { id: eventTypeId } },
+        }),
       },
     });
   }

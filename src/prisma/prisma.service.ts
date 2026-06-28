@@ -6,17 +6,14 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient {
   constructor(config: ConfigService) {
     super({
-      datasources: {
-        db: {
-          url: config.get('DATABASE_URL'),
-        },
-      },
+      datasourceUrl: config.get('DATABASE_URL'),
     });
   }
 
   cleanDb() {
     return this.$transaction([
       this.booking.deleteMany(),
+      this.eventType.deleteMany(),
       this.user.deleteMany(),
     ]);
   }
